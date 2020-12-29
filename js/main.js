@@ -10,10 +10,18 @@ let col = 10;
 let row = 10;
 let bomb = 10;
 
+let	bombImg = new Image();
+    bombImg.src = 'img/Bomb.png';
+
+let panelImg = new Image();
+    panelImg.src = 'img/Panel.png';
+
+
+
 function start(){
 	for (let y = 0; y < col; y++) {
 		for (let x = 0; x < row; x++) {	
-			blocks.push({"x":x, "y":y, "bomb":0});
+			blocks.push({"x":x, "y":y, "bomb":0, "checked":false});
 		}
 	}
 	draw();
@@ -22,22 +30,21 @@ function start(){
 function draw(){
  	clear();
 		
-
 	$.each(blocks, function(index, value){
-		ctx.strokeStyle='rgba(35, 255, 35, 1.0)';
-		ctx.beginPath(); 
-		ctx.strokeRect(24+value.x*60, 364+value.y*60, 60, 60);
-		ctx.closePath();
-		ctx.fill();
-	
-		if(value.bomb >= 9){
-			ctx.fillStyle='rgba(35, 255, 35, 1.0)';
-			ctx.beginPath();
-			ctx.fillRect(24+value.x*60, 364+value.y*60, 60, 60);
+		if(value.checked==true){
+			ctx.strokeStyle='rgba(36, 35, 39, 1.0)';
+			ctx.beginPath(); 
+			ctx.strokeRect(24+value.x*60, 364+value.y*60, 60, 60);
 			ctx.closePath();
 			ctx.fill();
-		} else if(value.bomb != 0){
-			textNum(value.bomb, value.x, value.y);
+		
+			if(value.bomb >= 9){
+				ctx.drawImage(bombImg, 24+value.x*60, 364+value.y*60, 60, 60);
+			} else if(value.bomb != 0){
+				textNum(value.bomb, value.x, value.y);
+			}
+		} else {
+			ctx.drawImage(panelImg, 24+value.x*60, 364+value.y*60, 60, 60);
 		}
 	})
 }
@@ -79,17 +86,46 @@ function number(x, y){
     }
 }
 
+function checked(x, y){
+	if(x>=0 && y>=0 && x<col && y<row) {
+    	$.each(blocks, function(index, value){
+    		if(value.x == x && value.y == y && value.checked == false){
+    			value.checked = true;
+    			if(value.bomb == 0){
+	    			checked(value.x-1, value.y-1);
+					checked(value.x,   value.y-1);
+					checked(value.x+1, value.y-1);
+					checked(value.x-1, value.y);
+					checked(value.x+1, value.y);
+					checked(value.x-1, value.y+1);
+					checked(value.x,   value.y+1);
+					checked(value.x+1, value.y+1);
+				}
+    		}
+    	})
+    }
+}
+
 function clear(){
 	ctx.clearRect(0, 0, width, height);
 }
 
 $(function(){
 	start();
+
 	$('canvas').click(function(e){
 		if(GameStart){
 			generateBomb();
 			GameStart = false;
 		} 
-		draw();
+
+		let mouseX = Math.floor(((e.offsetX || 0)-24)/60);
+		let mouseY = Math.floor(((e.offsetY || 0)-364)/60);
+		$.each(blocks, function(index, value){
+	    	if(value.x == mouseX && value.y == mouseY ){
+	    		checked(value.x, value.y);
+	    	}
+	    })
+		draw();	
 	})
 })
