@@ -1,45 +1,95 @@
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-var width = canvas.width;
-var height = canvas.height;
-var array = [];
-var x1 = 10;
-var y1 = 10;
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
-function draw(){
+let width = canvas.width;
+let height = canvas.height;
 
-	clear()
+let GameStart = true;
+let blocks = [];
+let col = 10;
+let row = 10;
+let bomb = 10;
 
-	ctx.fillStyle='rgba(35, 255, 35, 1.0)';
-	ctx.beginPath();
-	ctx.fillRect(0, 0, 648,152);
-	ctx.closePath();
-	ctx.fill();
-
-	for(i=0; i<array.length; i++){
-		ctx.strokeStyle='rgba(35, 255, 35, 1.0)';
-		ctx.beginPath();
-		ctx.strokeRect(24+array[i][0]*60, 364+array[i][1]*60, 60, 60);
-		ctx.closePath();
-		ctx.fill();
-	}
-}
-	
-function sapper(){
-	i = 0;
-	for (var x = 0; x < x1; x++) {	
-		for (var y = 0; y < y1; y++) {
-			array[i] = [x, y];
-			i++;
+function start(){
+	for (let y = 0; y < col; y++) {
+		for (let x = 0; x < row; x++) {	
+			blocks.push({"x":x, "y":y, "bomb":0});
 		}
 	}
-}	
+	draw();
+}
+
+function draw(){
+ 	clear();
+		
+
+	$.each(blocks, function(index, value){
+		ctx.strokeStyle='rgba(35, 255, 35, 1.0)';
+		ctx.beginPath(); 
+		ctx.strokeRect(24+value.x*60, 364+value.y*60, 60, 60);
+		ctx.closePath();
+		ctx.fill();
+	
+		if(value.bomb >= 9){
+			ctx.fillStyle='rgba(35, 255, 35, 1.0)';
+			ctx.beginPath();
+			ctx.fillRect(24+value.x*60, 364+value.y*60, 60, 60);
+			ctx.closePath();
+			ctx.fill();
+		} else if(value.bomb != 0){
+			textNum(value.bomb, value.x, value.y);
+		}
+	})
+}
+
+function textNum(number, x, y){
+	ctx.fillStyle='rgba(35, 255, 35, 1.0)';
+	ctx.font = "30px Arial";
+	ctx.beginPath();
+	ctx.fillText(number, 24+x*60+22, 364+y*60+40);
+	ctx.closePath();
+	ctx.fill();
+}
+
+function generateBomb(){
+
+	$.each(blocks, function(index, value){
+		let rand = Math.random();
+		if(rand < 0.1 && value.bomb != 9 && bomb > 0){
+			value.bomb = 9;
+			bomb--;
+			number(value.x-1, value.y-1);
+			number(value.x,   value.y-1);
+			number(value.x+1, value.y-1);
+			number(value.x-1, value.y);
+			number(value.x+1, value.y);
+			number(value.x-1, value.y+1);
+			number(value.x,   value.y+1);
+			number(value.x+1, value.y+1);
+		} 
+	}); if(bomb>0){generateBomb();}
+}
+function number(x, y){
+	if(x>=0 && y>=0 && x<col && y<row) {
+    	$.each(blocks, function(index, value){
+    		if(value.x == x && value.y == y){
+    			value.bomb++;
+    		}
+    	})
+    }
+}
 
 function clear(){
 	ctx.clearRect(0, 0, width, height);
 }
 
 $(function(){
-	sapper();
- 	draw();
+	start();
+	$('canvas').click(function(e){
+		if(GameStart){
+			generateBomb();
+			GameStart = false;
+		} 
+		draw();
+	})
 })
