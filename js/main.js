@@ -1,8 +1,11 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 
-let width = canvas.width;
-let height = canvas.height;
+let width = canvas.width; //384
+let height = canvas.height; //664
+let width1 = width/100;
+let height1 = height/100;
+
 
 let GameStart = true;
 let blocks = [];
@@ -14,6 +17,8 @@ let lose = true;
 let bombs = bomb;
 let win = col*row;
 let now = 0;	
+
+let width2 = (width - (width1*6))/row;
 
 let	bombImg = new Image();
     bombImg.src = 'img/Bomb.png';
@@ -39,19 +44,33 @@ function start(){
 
 function draw(){
  	clear();
+
+	if(win != win_bomb && lose ){
+		ctx.fillStyle = "white";
+		ctx.font = "100px Arial";
+		if(bombs>=0){
+			ctx.fillText("0"+bombs, width1*3, width2*2+width1*4, width2*3);
+		} else{ 
+			ctx.fillText(bombs, width1*3, width2*2+width1*4, width2*3);
+		}	
+	}
 	
- 	ctx.drawImage(smileImg, width/2-60, 30, 120, 120);
+	ctx.drawImage(smileImg, width1*3+width2*(row/2)-width2, width1*4, width2*2, width2*2);
+	
 	if(win != win_bomb && lose ){
 		ctx.fillStyle = "white";
-		ctx.font = "150px Arial";
-		ctx.fillText(bombs, 90, 150, 120, 130);
+		ctx.font = "100px Arial";
+		if(now<10){
+			ctx.fillText("00"+now, width1*3+width2*7, width2*2+width1*4, width2*3);
+		} else if (now<100){
+			ctx.fillText("0"+now, width1*3+width2*7, width2*2+width1*4, width2*3);
+		} else if(now<1000){
+			ctx.fillText(now, width1*3+width2*7, width2*2+width1*4, width2*3);
+		} else{
+			ctx.fillText("999", width1*3+width2*7, width2*2+width1*4, width2*3);
+		}
 	}
-	if(win != win_bomb && lose ){
-		ctx.fillStyle = "white";
-		ctx.font = "150px Arial";
-		ctx.fillText(now, 470, 150, 320, 130);
-	}
- 	
+
 
 	if(lose){
 		$.each(blocks, function(index, value){
@@ -61,18 +80,18 @@ function draw(){
 				ctx.fillText("Ви виграли!", 120, 500);
 			}else if(value.checked==true){
 				ctx.strokeStyle='rgba(36, 35, 39, 1.0)';
-				ctx.strokeRect(24+value.x*60, 364+value.y*60, 60, 60);
+				ctx.strokeRect(width1*3+value.x*width2, height1*18+value.y*width2, width2, width2);
 			
 				if(value.bomb >= 9){
-					ctx.drawImage(bombImg, 24+value.x*60, 364+value.y*60, 60, 60);
+					ctx.drawImage(bombImg, width1*3+value.x*width2, height1*18+value.y*width2, width2, width2);
 				} else if(value.bomb != 0){
 					textNum(value.bomb, value.x, value.y);
 				}
 			} else {
-				ctx.drawImage(panelImg, 24+value.x*60, 364+value.y*60, 60, 60);
+				ctx.drawImage(panelImg, width1*3+value.x*width2, height1*18+value.y*width2, width2, width2);
 			}
 			if(value.flag == true && win != win_bomb){
-				ctx.drawImage(flagImg, 24+value.x*60, 364+value.y*60, 60, 60);
+				ctx.drawImage(flagImg, width1*3+value.x*width2, height1*18+value.y*width2, width2, width2);
 			} 
 		})
 	} else {
@@ -83,7 +102,7 @@ function draw(){
 function textNum(number, x, y){
 	ctx.fillStyle='rgba(35, 255, 35, 1.0)';
 	ctx.font = "30px Arial";
-	ctx.fillText(number, 24+x*60+22, 364+y*60+40);
+	ctx.fillText(number, width1*3+x*width2+10, height1*18+y*width2+30);
 }
 
 function generateBomb(x, y){
@@ -166,8 +185,8 @@ $('canvas').mousedown(function(e){
 	let X = e.offsetX || 0;
 	let Y = e.offsetY || 0;
 
-	let mouseX = Math.floor((X-24)/60);
-	let mouseY = Math.floor((Y-364)/60);
+	let mouseX = Math.floor((X-width1*3)/width2);
+	let mouseY = Math.floor((Y-height1*18)/width2);
   
 	if(GameStart){
 		generateBomb(mouseX, mouseY);
@@ -193,7 +212,7 @@ $('canvas').mousedown(function(e){
 	    	}
 	    })
 	}
-	if(X >= width/2-60 && X <= width/2-60+120 && Y >= 30 && Y <= 150 ){
+	if(X >= width1*3+width2*(row/2)-width2 && X <= width1*3+width2*(row/2)+width2 && Y >= width1*3 && Y <= width2*2+width1*3 ){
 		restart();
 	}
 

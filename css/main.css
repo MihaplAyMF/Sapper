@@ -9,8 +9,8 @@ body {
     margin: 10px auto;
     overflow: hidden;
     position: relative;
-    height: 1152px;
-    width: 648px;
+    height: 600px;
+    width: 400px; 
 }
 #canvas{
     margin: auto;
