@@ -1,8 +1,8 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const width = canvas.width; //384
-const height = canvas.height; //664
+const width = canvas.width; 
+const height = canvas.height; 
 const onePercentWidth = width/100;
 const onePercentHeight = height/100;
 
@@ -22,6 +22,7 @@ let loss = false;
 let victory = col*row-bomb;
 
 let flagOrNotFlag = false;
+let numberColors = ['#4C64AC', '#01A000', '#FF0204', '#2A4692', '#8B0E04', '#46BCBF', '#544769', '#C0C0C0',];
 
 const bombImg = new Image();
     bombImg.src = 'img/Bomb.png';
@@ -31,25 +32,14 @@ const panelImg = new Image();
 
 const smileImg = new Image();
     smileImg.src = 'img/Smile.png';
-/*
-let smileVictoryImg = new Image();
-    smileVictoryImg.src = 'img/SmileVictory.png';
-*/
+
 const flagImg = new Image();
     flagImg.src = 'img/Flag.png';
 
 const shovelImg = new Image();
     shovelImg.src = 'img/Shovel.png';
 
-/*let number = [];
-
-for(i=0; i<10; i++){
-	let numberImg = new Image();
-	numberImg.src = 'img/Number'+i+'.png';
-	number[i] =  numberImg;
-}*/
-
-function start(){ // створюємо двомірний масив
+function start(){
 	blocks = [];
 	for (let y = 0; y < col; y++) {
 		for (let x = 0; x < row; x++) {	
@@ -62,9 +52,6 @@ function start(){ // створюємо двомірний масив
 function draw(){ 
 	clear();
 
-	// вивод кількості бомб
-	// тимчасове рішеення
-
 	ctx.fillStyle = "white";
 	ctx.font = "100px Arial";
 	if(flag<10 && flag>=0){
@@ -74,30 +61,8 @@ function draw(){
 	} else{
 		ctx.fillText(flag, onePercentWidth*3, sizeCell*2+onePercentWidth*4, sizeCell*3);
 	}
-	
 
-	/*let numberOfBomb = [Math.floor(flag/100), Math.floor(flag-numberOfBomb[0]*100/10), flag-numberOfBomb[0]*100-numberOfBomb[1]*10]
-
-	for(i=0; i<numberOfBomb.lenght; i++){
-		for(j=0; j<10; j++){
-			if(numberOfBomb[i] == i){
-				ctx.drawImage(number[i], //потім дороблю щас просто лень);
-			}
-		}
-	}*/
-
-
-	// смайлик, рестарт
-
-	/*if(victory==0){
-		ctx.drawImage(smileVictoryImg, onePercentWidth*3+sizeCell*(row/2)-sizeCell, onePercentWidth*4, sizeCell*2, sizeCell*2);		
-	}else{
-		ctx.drawImage(smileImg, onePercentWidth*3+sizeCell*(row/2)-sizeCell, onePercentWidth*4, sizeCell*2, sizeCell*2);
-	}*/ctx.drawImage(smileImg, onePercentWidth*3+sizeCell*(row/2)-sizeCell, onePercentWidth*4, sizeCell*2, sizeCell*2);
-	
-
-	// вивод часу
-	// тимчасове рішення
+	ctx.drawImage(smileImg, onePercentWidth*3+sizeCell*(row/2)-sizeCell, onePercentWidth*4, sizeCell*2, sizeCell*2);
 
 	ctx.fillStyle = "white";
 	ctx.font = "100px Arial";
@@ -111,21 +76,15 @@ function draw(){
 		ctx.fillText("999", onePercentWidth*3+sizeCell*7, sizeCell*2+onePercentWidth*4, sizeCell*3);
 	}
 
-	/*let numberOfTime = [Math.floor(time/100), Math.floor(time-xnumberOfTime[0]*100/10), time-numberOfTime[0]*100-numberOfTime[1]*10]
-
-	for(i=0; i<numberOfTime.lenght; i++){
-		for(j=0; j<10; j++){
-			if(numberOfTime[i] == i){
-				ctx.drawImage(number[i], //потім дороблю щас просто лень);
-			}
-		}
-	}*/
-
-	// вивод самого поля
-
 	$.each(blocks, function(index, value){
-		if(loss==true && value.bomb>=9){
-			ctx.drawImage(bombImg, onePercentWidth*3+value.x*sizeCell, onePercentHeight*18+value.y*sizeCell, sizeCell, sizeCell);
+		if(loss==true){
+			ctx.strokeStyle='rgba(36, 35, 39, 1.0)';
+			ctx.strokeRect(onePercentWidth*3+value.x*sizeCell, onePercentHeight*18+value.y*sizeCell, sizeCell, sizeCell);
+			if(value.bomb >= 9){
+				ctx.drawImage(bombImg, onePercentWidth*3+value.x*sizeCell, onePercentHeight*18+value.y*sizeCell, sizeCell, sizeCell);
+			} else if(value.bomb>0 && value.bomb <9){
+				inputNumber(value.bomb, value.x, value.y);
+			} 
 		}else if(value.flag == true){
 			ctx.drawImage(panelImg, onePercentWidth*3+value.x*sizeCell, onePercentHeight*18+value.y*sizeCell, sizeCell, sizeCell);
 			ctx.drawImage(flagImg, onePercentWidth*3+value.x*sizeCell, onePercentHeight*18+value.y*sizeCell, sizeCell, sizeCell);
@@ -152,9 +111,13 @@ function draw(){
 }
 
 function inputNumber(number, x, y){
-	ctx.fillStyle='rgba(35, 255, 35, 1.0)';
-	ctx.font = "30px Arial";
-	ctx.fillText(number, onePercentWidth*3+x*sizeCell+10, onePercentHeight*18+y*sizeCell+30);
+	 for(let i = 1; i<9; i++){
+	 	if(number == i){
+	 		ctx.fillStyle= numberColors[i-1];
+			ctx.font = "30px Arial";
+			ctx.fillText(number, onePercentWidth*3+x*sizeCell+10, onePercentHeight*18+y*sizeCell+30);
+	 	}
+	 }
 }
 
 function generateBomb(){ 
@@ -174,7 +137,7 @@ function numberInCell(x, y){
 	$.each(blocks, function(index, value){
 		for(i = -1; i<2; i++){
 			for(j = -1; j<2; j++){
-				if(value.x == x+i && value.y == y+j){
+				if(value.x == x+i && value.y == y+j && value.bomb <9){
 					value.bomb++;
 				}
 			}
